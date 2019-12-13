@@ -34,8 +34,10 @@
 <script>
 
 import ItemList from "./ItemList";
+import axios from "axios/dist/axios";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "font-awesome/css/font-awesome.min.css";
+
 
 export default {
   name: "app",
@@ -46,8 +48,8 @@ export default {
     return {
       prefix: null,
       sufix: null,
-      prefixes: ["Air", "Jet", "Flight"],
-      sufixes: ["Hub", "Station", "Smart"],
+      prefixes: [],
+      sufixes: [],
     };
   },
   methods: {
@@ -85,6 +87,34 @@ export default {
 
       return domains;
     }
+  },
+  created() {
+    axios({
+      url: "http://localhost:4000",
+      method: "post",
+      data: {
+        query: `
+        {
+          prefixes: items(type: "prefixes") {
+            id
+            type
+            description
+          }
+
+          sufixes: items(type: "sufixes") {
+            id
+            type
+            description
+          }
+        }
+        `
+      }
+    }).then(response => {
+      const res = response.data;
+
+      this.sufixes = res.data.sufixes.map(sufixe => sufixe.description);
+      this.prefixes = res.data.prefixes.map(prefixe => prefixe.description);
+    });
   }
 };
 </script>
